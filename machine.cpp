@@ -10,12 +10,15 @@
 
 using namespace QtDataVisualization;
 
+
 bool Machine::loadParameters()
 {
-    QFile loadFile(jsonFileName);
+    loadSettings();
+
+    QFile loadFile(JSON_FREQ_FILE_NAME);
 
     if (!loadFile.open(QFile::ReadOnly | QFile::Text)) {
-        qWarning() << "Couldn't open frequency file" << jsonFileName;
+        qWarning() << "Couldn't open frequency file" << JSON_FREQ_FILE_NAME;
         return false;
     }
 
@@ -46,6 +49,27 @@ bool Machine::loadParameters()
     return true;
 }
 
+
+void Machine::loadSettings()
+{
+    QFile loadFile(JSON_SET_FILE_NAME);
+
+    if (!loadFile.open(QFile::ReadOnly | QFile::Text)) {
+        qWarning() << "Couldn't open settings file" << JSON_SET_FILE_NAME << ".\r Default values will be used.";
+        return;
+    }
+
+    QByteArray rawData = loadFile.readAll();
+    QJsonObject settingsObj {QJsonDocument::fromJson(rawData).object()};
+
+    if (settingsObj.contains("minBufLength") && settingsObj["minBufLength"].isDouble())
+        minBufLength = settingsObj["minBufLength"].toInt();
+
+    if (settingsObj.contains("bufferLength") && settingsObj["bufferLength"].isDouble())
+        bufferLength = settingsObj["bufferLength"].toInt();
+}
+
+
 QSurfaceDataArray* Machine::loadFile(QString fn)
 {
     QFile fileTxt(fn);
@@ -57,7 +81,7 @@ QSurfaceDataArray* Machine::loadFile(QString fn)
 
     QTextStream in(&fileTxt);
     QString textStr;
-    textStr.append(in.read(lenReadedText));
+    textStr.append(in.read(bufferLength));
 
     if (textStr.isEmpty())
     {
@@ -69,13 +93,13 @@ QSurfaceDataArray* Machine::loadFile(QString fn)
     rx.setCaseSensitivity(Qt::CaseInsensitive);
     textStr.remove(rx);
 
-    if (textStr.length() < minLenText)
+    if (textStr.length() < minBufLength)
     {
         qWarning() << "Length of processed text isn't enough.";
         return nullptr;
     }
 
-    // build QSurfaceDataArray
+    // build QSurfaceDataArray from textStr
 
     int edgeSize = ceil(sqrt(textStr.length()));
 

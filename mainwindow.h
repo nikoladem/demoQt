@@ -5,10 +5,6 @@
 #include "machine.h"
 #include <QtDataVisualization/QSurface3DSeries>
 
-namespace Ui {
-class MainWindow;
-}
-
 using namespace QtDataVisualization;
 
 class MainWindow : public QMainWindow
