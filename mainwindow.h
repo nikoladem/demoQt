@@ -45,6 +45,7 @@ private:
     const int CHARTVIEW_HEIGHT = 200;
     const int CHARTVIEW_FIELD_X = 30;
     const int CHARTVIEW_FIELD_Y = 20;
+    const int WINDOW_MIN_WIDTH = 600;
 
 };
 

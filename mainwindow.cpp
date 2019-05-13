@@ -44,8 +44,9 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
     surface->addSeries(surfaceSeries);
 
     QSize screenSize = surface->screen()->size();
-    const int xSize = screenSize.width() / 3;
-    container->setMinimumSize(QSize(xSize, screenSize.height() / 1.6));
+//    const int xSize = screenSize.width() / 3;
+//    container->setMinimumSize(QSize(xSize, screenSize.height() / 1.6));
+    container->setMinimumSize(QSize(WINDOW_MIN_WIDTH, screenSize.height() / 1.6));
     container->setMaximumSize(screenSize);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -67,7 +68,7 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
 //    chart->setMinimumWidth(1200);
 //    chart->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
-    chartView->setMinimumSize(getViewWidth(seriesLength, xSize), CHARTVIEW_HEIGHT - CHARTVIEW_FIELD_Y);
+    chartView->setMinimumSize(getViewWidth(seriesLength, WINDOW_MIN_WIDTH), CHARTVIEW_HEIGHT - CHARTVIEW_FIELD_Y);
     chartView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     chartView->setRenderHint(QPainter::Antialiasing);
 
@@ -75,7 +76,7 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     scrollArea->setWidget(chartView);
     scrollArea->setWidgetResizable(true);
-    scrollArea->setMinimumSize(xSize, CHARTVIEW_HEIGHT);
+    scrollArea->setMinimumSize(WINDOW_MIN_WIDTH, CHARTVIEW_HEIGHT);
 
     // Build layout
 
@@ -154,7 +155,8 @@ void MainWindow::on_actionOpen_file_triggered()
             axisX->setRange(0, seriesLength);
             axisY->setRange(0, machine->getMaxHeight());
 
-            int width = getViewWidth(seriesLength, this->width());
+//            int width = getViewWidth(seriesLength, this->width());
+            int width = getViewWidth(seriesLength, WINDOW_MIN_WIDTH);
             chartView->setMinimumSize(width, CHARTVIEW_HEIGHT - CHARTVIEW_FIELD_Y);
             chartView->resize( width, chartView->height() - CHARTVIEW_FIELD_Y );
         }
@@ -164,5 +166,9 @@ void MainWindow::on_actionOpen_file_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "About", "Описание программы");  //TODO: доделать
+    QMessageBox::about(this, "About", "Программа дает визуальное представление частоты "
+       "символов в загруженном текстовом файле (его части, установленного размера). \n"
+       "Используется обратная зависимость высоты графика от частоты, таким образом редко "
+       "используемые символы образуют пики.\n"
+       "Трёхмерная поверхность добавлена просто \"потому что могЁм\" (всё-таки шмогла)");
 }
