@@ -24,7 +24,7 @@ QT_CHARTS_USE_NAMESPACE
 
 MainWindow::MainWindow(Machine *m, QWidget *parent) :
     QMainWindow(parent),
-    workDir(tr("f:\\temp")), // workDir(QDir::currentPath()),  - TODO: вернуть в релизе QDir::currentPath
+    workDir(QDir::currentPath()),  // workDir(tr("f:\\temp")),
     machine(m),
     chart(new QChart),
     chartSeries(new QLineSeries),
@@ -38,35 +38,27 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
     QWidget *container = QWidget::createWindowContainer(surface);
     surface->setFlags(surface->flags() ^ Qt::FramelessWindowHint);
 
-//    QSurfaceDataArray *data = new QSurfaceDataArray;
     surfaceSeries = new QSurface3DSeries;
-//    surfaceSeries->dataProxy()->resetArray(data);
     surface->addSeries(surfaceSeries);
 
     QSize screenSize = surface->screen()->size();
-//    const int xSize = screenSize.width() / 3;
-//    container->setMinimumSize(QSize(xSize, screenSize.height() / 1.6));
-    container->setMinimumSize(QSize(WINDOW_MIN_WIDTH, screenSize.height() / 1.6));
+    container->setMinimumSize(QSize(WINDOW_MIN_WIDTH, SURFACE_MIN_HEIGHT));
     container->setMaximumSize(screenSize);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Build Chart
 
-    *chartSeries << QPointF(0, 7) << QPointF(1, 3) << QPointF(2, 6) << QPointF(3, 2) << QPointF(4, 4);
-    *chartSeries << QPointF(5, 1) << QPointF(6, 3) << QPointF(7, 0) << QPointF(8, 3) << QPointF(9, 2);
-
     chart->legend()->hide();
     chart->addSeries(chartSeries);
     int seriesLength = chartSeries->pointsVector().size();
+    axisX->setTitleText("Text");
+    axisY->setTitleText("Frequency");
     axisX->setRange(0, seriesLength);
-    axisY->setRange(0, 15);
+    axisY->setRange(0, 1);
     chart->addAxis(axisX, Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
     chartSeries->attachAxis(axisX);
     chartSeries->attachAxis(axisY);
-
-//    chart->setMinimumWidth(1200);
-//    chart->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
     chartView->setMinimumSize(getViewWidth(seriesLength, WINDOW_MIN_WIDTH), CHARTVIEW_HEIGHT - CHARTVIEW_FIELD_Y);
     chartView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -139,7 +131,7 @@ void MainWindow::on_actionOpen_file_triggered()
     QString fileName = QFileDialog::getOpenFileName(this,
                                 QString::fromUtf8("Открыть файл"),
                                 workDir,
-                                "Text (*.txt);;");  // "Text (*.txt);;All files (*.*)");
+                                "Text (*.txt);;");
 
     QFileInfo fileInfo(fileName);
     workDir = fileInfo.path();
@@ -155,7 +147,6 @@ void MainWindow::on_actionOpen_file_triggered()
             axisX->setRange(0, seriesLength);
             axisY->setRange(0, machine->getMaxHeight());
 
-//            int width = getViewWidth(seriesLength, this->width());
             int width = getViewWidth(seriesLength, WINDOW_MIN_WIDTH);
             chartView->setMinimumSize(width, CHARTVIEW_HEIGHT - CHARTVIEW_FIELD_Y);
             chartView->resize( width, chartView->height() - CHARTVIEW_FIELD_Y );
@@ -170,5 +161,5 @@ void MainWindow::on_actionAbout_triggered()
        "символов в загруженном текстовом файле (его части, установленного размера). \n"
        "Используется обратная зависимость высоты графика от частоты, таким образом редко "
        "используемые символы образуют пики.\n"
-       "Трёхмерная поверхность добавлена просто \"потому что могЁм\" (всё-таки шмогла)");
+       "В программе используется таблица частотности букв русского языка (по НКРЯ).");
 }

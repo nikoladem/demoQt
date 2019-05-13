@@ -23,10 +23,10 @@ private:
     const QString JSON_FREQ_FILE_NAME   {"simbol_frequency.json"};
     const QString JSON_SET_FILE_NAME    {"settings.json"};
 
-    qint64 bufferLength = 2000;
-    qint64 minBufLength = 100;
+    qint64 bufferLength = 2000;         // default value if settings.json is absent
+    qint64 minBufLength = 100;          // default value if settings.json is absent
 
-    QString textStr;
+    QString textBuffer;
 
     QString removeFilterStr;            // regExp for remove all non-counted symbols
     QHash<QString, double> heightsMap;

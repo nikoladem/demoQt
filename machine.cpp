@@ -54,7 +54,7 @@ void Machine::loadSettings()
     QFile loadFile(JSON_SET_FILE_NAME);
 
     if (!loadFile.open(QFile::ReadOnly | QFile::Text)) {
-        qWarning() << "Couldn't open settings file" << JSON_SET_FILE_NAME << ".\r Default values will be used.";
+        qWarning() << "Couldn't open settings file" << JSON_SET_FILE_NAME << ".\n Default values will be used.";
         return;
     }
 
@@ -79,22 +79,20 @@ bool Machine::loadFile(QString fn)
     }
 
     QTextStream in(&fileTxt);
-    textStr.clear();
-    textStr.append(in.read(bufferLength));
+    textBuffer.clear();
+    textBuffer.append(in.read(bufferLength));
 
-    if (textStr.trimmed().isEmpty())
+    if (textBuffer.trimmed().isEmpty())
     {
-        qWarning() << "file " << fn << " was read incorrectly or is empty";
+        qWarning() << "File " << fn << " was read incorrectly or is empty";
         return false;
     }
 
     QRegExp rx(removeFilterStr);
     rx.setCaseSensitivity(Qt::CaseInsensitive);
-    textStr.remove(rx);
+    textBuffer.remove(rx);
 
-//    qDebug() << textStr;
-
-    if (textStr.length() < minBufLength)
+    if (textBuffer.length() < minBufLength)
     {
         qWarning() << "Length of processed text isn't enough.";
         return false;
@@ -107,35 +105,35 @@ QVector<QPointF> Machine::getChartSeriesData()
 {
     QVector<QPointF> buffer;
 
-    for (int i=0; i < textStr.length(); ++i)
-        buffer << QPointF(i, heightsMap[textStr.at(i)]);
+    for (int i=0; i < textBuffer.length(); ++i)
+        buffer << QPointF(i, heightsMap[textBuffer.at(i)]);
 
     return buffer;
 }
 
 QSurfaceDataArray* Machine::getSurfaceDataArray()
 {
-    if (textStr.trimmed().isEmpty())
+    if (textBuffer.trimmed().isEmpty())
         return nullptr;
 
-    int edgeSize = ceil(sqrt(textStr.length()));
+    int edgeSize = ceil(sqrt(textBuffer.length()));
 
     QSurfaceDataArray *data = new QSurfaceDataArray;
     QSurfaceDataRow *dataRow = new QSurfaceDataRow;
     int i = 0;
     int z = 0;
     int x = 0;
-    while (i < textStr.length())
+    while (i < textBuffer.length())
     {
         while ((x < edgeSize) &&
-               (i < textStr.length()))
+               (i < textBuffer.length()))
         {
-            *dataRow << QVector3D(x, heightsMap[textStr.at(i)], z);
+            *dataRow << QVector3D(x, heightsMap[textBuffer.at(i)], z);
             ++x;
             ++i;
         }
 
-        if (i >= textStr.length())
+        if (i >= textBuffer.length())
         {
             // we have reached the end of the text but must fulfill
             // the condition: "All rows in newArray must be of same length"
@@ -149,7 +147,7 @@ QSurfaceDataArray* Machine::getSurfaceDataArray()
         x = 0;
         ++z;
         *data << dataRow;
-        if (i < textStr.length())
+        if (i < textBuffer.length())
             dataRow = new QSurfaceDataRow;
     }
 

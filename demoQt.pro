@@ -55,4 +55,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     settings.json \
-    simbol_frequency.json
+    simbol_frequency.json \
+    зайка.txt \
+    зайка_UTF8.txt

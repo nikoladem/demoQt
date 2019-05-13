@@ -42,10 +42,11 @@ private:
     QValueAxis *axisX;
     QValueAxis *axisY;
 
-    const int CHARTVIEW_HEIGHT = 200;
+    const int CHARTVIEW_HEIGHT = 300;
     const int CHARTVIEW_FIELD_X = 30;
     const int CHARTVIEW_FIELD_Y = 20;
-    const int WINDOW_MIN_WIDTH = 600;
+    const int WINDOW_MIN_WIDTH = 800;
+    const int SURFACE_MIN_HEIGHT = 500;
 
 };
 
