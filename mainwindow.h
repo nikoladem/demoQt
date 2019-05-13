@@ -24,6 +24,7 @@ private slots:
 
 private:
     void CreateMenus();
+    inline int getViewWidth(int seriesLen, int currWidth);
 
     QMenu *fileMenu;
     QMenu *helpMenu;
@@ -40,6 +41,10 @@ private:
     QChartView *chartView;
     QValueAxis *axisX;
     QValueAxis *axisY;
+
+    const int CHARTVIEW_HEIGHT = 200;
+    const int CHARTVIEW_FIELD_X = 30;
+    const int CHARTVIEW_FIELD_Y = 20;
 
 };
 

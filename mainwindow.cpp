@@ -6,12 +6,9 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#include <QtGui/QScreen>
-
 #include <QtDataVisualization/Q3DSurface>
 #include <QtDataVisualization/QSurfaceDataProxy>
 #include <QtDataVisualization/QSurfaceDataArray>
-//#include <QtDataVisualization/QHeightMapSurfaceDataProxy>
 #include <QtDataVisualization/QSurface3DSeries>
 
 #include <QtCharts/QLineSeries>
@@ -23,6 +20,7 @@
 using namespace QtDataVisualization;
 
 QT_CHARTS_USE_NAMESPACE
+
 
 MainWindow::MainWindow(Machine *m, QWidget *parent) :
     QMainWindow(parent),
@@ -46,7 +44,7 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
     surface->addSeries(surfaceSeries);
 
     QSize screenSize = surface->screen()->size();
-    const int xSize = screenSize.width() / 2;
+    const int xSize = screenSize.width() / 3;
     container->setMinimumSize(QSize(xSize, screenSize.height() / 1.6));
     container->setMaximumSize(screenSize);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -58,7 +56,8 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
 
     chart->legend()->hide();
     chart->addSeries(chartSeries);
-    axisX->setRange(0, chartSeries->pointsVector().size());
+    int seriesLength = chartSeries->pointsVector().size();
+    axisX->setRange(0, seriesLength);
     axisY->setRange(0, 15);
     chart->addAxis(axisX, Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
@@ -68,17 +67,15 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
 //    chart->setMinimumWidth(1200);
 //    chart->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
-//    QChartView *chartView = new QChartView(chart);
-
-    chartView->setMinimumSize(/*xSize*/800, 200);
-    chartView->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    chartView->setMinimumSize(getViewWidth(seriesLength, xSize), CHARTVIEW_HEIGHT - CHARTVIEW_FIELD_Y);
+    chartView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     chartView->setRenderHint(QPainter::Antialiasing);
 
     QScrollArea *scrollArea = new QScrollArea();
-    scrollArea->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     scrollArea->setWidget(chartView);
-//    scrollArea->setWidgetResizable(true);
-    scrollArea->setMinimumSize(/*xSize*/800, 200);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setMinimumSize(xSize, CHARTVIEW_HEIGHT);
 
     // Build layout
 
@@ -89,6 +86,16 @@ MainWindow::MainWindow(Machine *m, QWidget *parent) :
     setCentralWidget(centralWidget);
 
     CreateMenus();
+}
+
+
+int MainWindow::getViewWidth(int seriesLen, int currWidth)
+{
+    if (seriesLen < currWidth) {
+        return currWidth - CHARTVIEW_FIELD_X;
+    } else {
+        return seriesLen * 2;
+    }
 }
 
 
@@ -119,10 +126,12 @@ void MainWindow::CreateMenus()
     helpMenu->addAction(aboutAct);
 }
 
+
 void MainWindow::on_actionExit_triggered()
 {
     QApplication::quit();
 }
+
 
 void MainWindow::on_actionOpen_file_triggered()
 {
@@ -141,13 +150,17 @@ void MainWindow::on_actionOpen_file_triggered()
             surfaceSeries->dataProxy()->resetArray(machine->getSurfaceDataArray());
 
             chartSeries->replace(machine->getChartSeriesData());
-            axisX->setRange(0, chartSeries->pointsVector().size());
+            int seriesLength = chartSeries->pointsVector().size();
+            axisX->setRange(0, seriesLength);
             axisY->setRange(0, machine->getMaxHeight());
 
-            chartView->resize(1200, chartView->height());
+            int width = getViewWidth(seriesLength, this->width());
+            chartView->setMinimumSize(width, CHARTVIEW_HEIGHT - CHARTVIEW_FIELD_Y);
+            chartView->resize( width, chartView->height() - CHARTVIEW_FIELD_Y );
         }
     }
 }
+
 
 void MainWindow::on_actionAbout_triggered()
 {

@@ -92,7 +92,7 @@ bool Machine::loadFile(QString fn)
     rx.setCaseSensitivity(Qt::CaseInsensitive);
     textStr.remove(rx);
 
-    qDebug() << textStr;
+//    qDebug() << textStr;
 
     if (textStr.length() < minBufLength)
     {
