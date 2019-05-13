@@ -25,9 +25,8 @@ bool Machine::loadParameters()
     QByteArray rawData = loadFile.readAll();
     QJsonObject freqObj {QJsonDocument::fromJson(rawData).object()};
 
-    double maxFreq = 0;
     for (const QJsonValue elem : freqObj)
-        maxFreq = elem.toDouble() > maxFreq ? elem.toDouble() : maxFreq;
+        maxHeigt = elem.toDouble() > maxHeigt ? elem.toDouble() : maxHeigt;
 
     // build heights map for simbols
     // where the height is inversely proportional to the frequency
@@ -35,7 +34,7 @@ bool Machine::loadParameters()
     heightsMap.clear();
     while (itr != freqObj.constEnd())
     {
-        heightsMap.insert(itr.key(), maxFreq - itr.value().toDouble());
+        heightsMap.insert(itr.key(), maxHeigt - itr.value().toDouble());
         ++itr;
     }
 
@@ -70,36 +69,54 @@ void Machine::loadSettings()
 }
 
 
-QSurfaceDataArray* Machine::loadFile(QString fn)
+bool Machine::loadFile(QString fn)
 {
     QFile fileTxt(fn);
 
     if (!fileTxt.open(QFile::ReadOnly | QFile::Text)) {
         qWarning() << "Couldn't open file " << fn << " correctly";
-        return nullptr;
+        return false;
     }
 
     QTextStream in(&fileTxt);
-    QString textStr;
+    textStr.clear();
     textStr.append(in.read(bufferLength));
 
-    if (textStr.isEmpty())
+    if (textStr.trimmed().isEmpty())
     {
         qWarning() << "file " << fn << " was read incorrectly or is empty";
-        return nullptr;
+        return false;
     }
 
     QRegExp rx(removeFilterStr);
     rx.setCaseSensitivity(Qt::CaseInsensitive);
     textStr.remove(rx);
 
+    qDebug() << textStr;
+
     if (textStr.length() < minBufLength)
     {
         qWarning() << "Length of processed text isn't enough.";
-        return nullptr;
+        return false;
     }
 
-    // build QSurfaceDataArray from textStr
+    return true;
+}
+
+QVector<QPointF> Machine::getChartSeriesData()
+{
+    QVector<QPointF> buffer;
+
+    for (int i=0; i < textStr.length(); ++i)
+        buffer << QPointF(i, heightsMap[textStr.at(i)]);
+
+    return buffer;
+}
+
+QSurfaceDataArray* Machine::getSurfaceDataArray()
+{
+    if (textStr.trimmed().isEmpty())
+        return nullptr;
 
     int edgeSize = ceil(sqrt(textStr.length()));
 

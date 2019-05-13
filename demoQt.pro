@@ -4,6 +4,19 @@
 #
 #-------------------------------------------------
 
+###########################################
+QMAKE_EXTRA_TARGETS += before_build makefilehook
+
+makefilehook.target = $(MAKEFILE)
+makefilehook.depends = .beforebuild
+
+PRE_TARGETDEPS += .beforebuild
+
+before_build.target = .beforebuild
+before_build.depends = FORCE
+before_build.commands = chcp 1251
+###########################################
+
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -33,7 +46,7 @@ HEADERS += \
         machine.h \
         mainwindow.h
 
-QT += datavisualization
+QT += datavisualization charts
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

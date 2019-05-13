@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "machine.h"
 #include <QtDataVisualization/QSurface3DSeries>
+#include <QtCharts>
+
+#include "machine.h"
 
 using namespace QtDataVisualization;
 
@@ -31,7 +33,13 @@ private:
 
     QString workDir;
     Machine *machine;
-    QSurface3DSeries *series;
+    QSurface3DSeries *surfaceSeries;
+
+    QChart *chart;
+    QLineSeries *chartSeries ;
+    QChartView *chartView;
+    QValueAxis *axisX;
+    QValueAxis *axisY;
 
 };
 
